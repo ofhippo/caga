@@ -16,7 +16,7 @@ public class CellularAutomataEvolver {
     static final int POP_SIZE = 100;
     static final int RUNS_PER_GENERATION = 100;
     static final int NUM_ELITE_SURVIVORS = 20;
-    static final Goal goal = new Sync2Goal();
+    static final Goal goal = new SyncAny3Goal();//Sync2Goal SyncAny2Goal SyncAny3 SyncAny3Goal MajorityGoal
     static int genNum = 0;
 
     static CellularAutomatonIndividual[] population = new CellularAutomatonIndividual[POP_SIZE];

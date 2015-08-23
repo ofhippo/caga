@@ -5,7 +5,7 @@ package ga;
  */
 public class MajorityGoal implements Goal {
 
-    private static final int DURATION = 300;
+    private static final int DURATION = 100;
 
     @Override
     public  boolean satisfactory(Individual individual) {
