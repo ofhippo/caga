@@ -14,9 +14,10 @@ import java.util.Random;
 public class CellularAutomataEvolver {
 
     static final int POP_SIZE = 100;
-    static final int RUNS_PER_GENERATION = 100;
+    static final int RUNS_PER_GENERATION = 300;
     static final int NUM_ELITE_SURVIVORS = 20;
-    static final Goal goal = new SyncAny3Goal();//Sync2Goal SyncAny2Goal SyncAny3 SyncAny3Goal MajorityGoal
+    static final Goal goal = new MajorityGoal();//Sync2Goal SyncAny2Goal SyncAny3 SyncAny3Goal MajorityGoal
+    static final boolean UNIFORM_IC_DISTRIBUTION = true;
     static int genNum = 0;
 
     static CellularAutomatonIndividual[] population = new CellularAutomatonIndividual[POP_SIZE];
@@ -32,7 +33,11 @@ public class CellularAutomataEvolver {
             //create RUNS_PER_GENERATION initial conditions
             List<boolean[]> initialConditions = new ArrayList<>();
             for (int i = 0; i < RUNS_PER_GENERATION; i++) {
-                initialConditions.add(CellularAutomaton.getRandomInitialState());
+                if (UNIFORM_IC_DISTRIBUTION) {
+                    initialConditions.add(CellularAutomaton.getUniformRandomState());
+                } else {
+                    initialConditions.add(CellularAutomaton.getUnbiasedRandomState());
+                }
             }
 
             //caclulate fitness for each individual
@@ -77,7 +82,7 @@ public class CellularAutomataEvolver {
     }
 
     public static void report() {
-        population[0].cellularAutomaton.reset(CellularAutomaton.getRandomInitialState());
+        population[0].cellularAutomaton.reset(CellularAutomaton.getUniformRandomState());
         population[0].cellularAutomaton.run(300, true);
 
         System.out.println(population[0].fitness);

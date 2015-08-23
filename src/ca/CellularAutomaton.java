@@ -10,7 +10,7 @@ import java.util.Random;
  */
 public class CellularAutomaton {
     public static final int RULE = 102;
-    public static final int WORLD_SIZE = 70;
+    public static final int WORLD_SIZE = 149;
     public static final int DURATION = 1000;
     public static final boolean RANDOM_INITIAL_CONDITION = false;
     private static final boolean DEBUG = false;
@@ -23,7 +23,7 @@ public class CellularAutomaton {
     public boolean[] initialState;
 
     public static void main(String[] args) {
-        boolean[] initialState = RANDOM_INITIAL_CONDITION ? getRandomInitialState() : getOneBlackCellInitialState();
+        boolean[] initialState = RANDOM_INITIAL_CONDITION ? getUnbiasedRandomState() : getOneBlackCellInitialState();
         CellularAutomaton ca = new CellularAutomaton(getElementaryRuleFromWolframNumber(RULE));
         ca.reset(initialState);
         ca.run(DURATION);
@@ -37,12 +37,47 @@ public class CellularAutomaton {
         return initialState;
     }
 
-    public static boolean[] getRandomInitialState() {
+    public static boolean[] getUnbiasedRandomState() {
         boolean[] initialState = new boolean[WORLD_SIZE];
         for (int i = 0; i < WORLD_SIZE; i++) {
             initialState[i] = Math.random() < 0.5;
         }
         return initialState;
+    }
+
+
+    public static boolean[] getUniformRandomState() {
+        boolean[] initialState = new boolean[WORLD_SIZE];
+
+        Random rand = new Random();
+        int numBlack = rand.nextInt(WORLD_SIZE);
+        for (int i = 0; i < WORLD_SIZE - numBlack; i++) {
+            initialState[i] = true;
+        }
+
+        for (int i = WORLD_SIZE - numBlack; i < WORLD_SIZE; i++) {
+            initialState[i] = false;
+        }
+
+        shuffleArray(initialState);
+
+        return initialState;
+    }
+
+    private static void shuffleArray(boolean[] array)//http://stackoverflow.com/questions/1519736/random-shuffling-of-an-array
+    {
+        int index;
+        Random random = new Random();
+        for (int i = array.length - 1; i > 0; i--)
+        {
+            index = random.nextInt(i + 1);
+            if (index != i)
+            {
+                array[index] ^= array[i];
+                array[i] ^= array[index];
+                array[index] ^= array[i];
+            }
+        }
     }
 
     public static HashMap<List<Boolean>, Boolean> getElementaryRuleFromWolframNumber(int n) {
@@ -87,17 +122,21 @@ public class CellularAutomaton {
     }
 
     public void run(int duration, boolean print) {
-        outer:
         for (int i = 0; i < duration; i++) {
             stateHistory.add(this.currentState);
-//            if (stateHistory.size() > 1 && i < stateHistory.size() - 2) {
-//                for (int j = 0; j < stateHistory.get(0).length; j++) {
-//                    if (stateHistory.get(i)[j] != stateHistory.get(i + 1)[j]) {
-//                        break;
-//                    }
-//                    break outer;
-//                }
-//            }
+            if (i >= 30 && i % 30 == 0) {
+                boolean matchesLast = true;
+                for (int j = 0; j < stateHistory.get(0).length; j++) {
+                    if (stateHistory.get(i)[j] != stateHistory.get(i - 1)[j]) {
+                        matchesLast = false;
+                        break;
+                    }
+                }
+                if (matchesLast) {
+                    if (print || DEBUG) printCurrentState();
+                    return;
+                }
+            }
             if (print || DEBUG) printCurrentState();
             this.currentState = applyRule(this.currentState);
         }
@@ -113,7 +152,7 @@ public class CellularAutomaton {
     }
 
     List<Boolean> getNeighborhood(boolean[] state, int index) {
-        List<Boolean> neighbors = new ArrayList<Boolean>();
+        List<Boolean> neighbors = new ArrayList<>();
         for (int i = 1; i <= neighborhoodRadius; i++) {
             neighbors.add(state[((index - i) + state.length) % state.length]);
         }
