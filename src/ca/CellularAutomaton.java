@@ -124,7 +124,7 @@ public class CellularAutomaton {
     public void run(int duration, boolean print) {
         for (int i = 0; i < duration; i++) {
             stateHistory.add(this.currentState);
-            if (i >= 30 && i % 30 == 0) {
+            if (i > 0 && i % 10 == 0) {
                 boolean matchesLast = true;
                 for (int j = 0; j < stateHistory.get(0).length; j++) {
                     if (stateHistory.get(i)[j] != stateHistory.get(i - 1)[j]) {
