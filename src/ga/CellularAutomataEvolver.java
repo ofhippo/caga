@@ -14,10 +14,10 @@ import java.util.Random;
 public class CellularAutomataEvolver {
 
     static final int POP_SIZE = 100;
-    static final int RUNS_PER_GENERATION = 300;
     static final int NUM_ELITE_SURVIVORS = 20;
+    static final int RUNS_PER_GENERATION = 100;
+    static final boolean TRANSITION_IC_SAMPLE_DIST = false;
     static final Goal goal = new MajorityGoal();//Sync2Goal SyncAny2Goal SyncAny3 SyncAny3Goal MajorityGoal
-    static final boolean UNIFORM_IC_DISTRIBUTION = true;
     static int genNum = 0;
 
     static CellularAutomatonIndividual[] population = new CellularAutomatonIndividual[POP_SIZE];
@@ -33,11 +33,15 @@ public class CellularAutomataEvolver {
             //create RUNS_PER_GENERATION initial conditions
             List<boolean[]> initialConditions = new ArrayList<>();
             for (int i = 0; i < RUNS_PER_GENERATION; i++) {
-                if (UNIFORM_IC_DISTRIBUTION) {
-                    initialConditions.add(CellularAutomaton.getUniformRandomState());
-                } else {
-                    initialConditions.add(CellularAutomaton.getUnbiasedRandomState());
-                }
+                   if (TRANSITION_IC_SAMPLE_DIST) {
+                       if (i < genNum) {
+                           initialConditions.add(CellularAutomaton.getUnbiasedRandomState());//hard
+                       } else {
+                           initialConditions.add(CellularAutomaton.getUniformRandomState());//easy
+                       }
+                   } else {
+                       initialConditions.add(CellularAutomaton.getUniformRandomState());
+                   }
             }
 
             //caclulate fitness for each individual
@@ -82,12 +86,38 @@ public class CellularAutomataEvolver {
     }
 
     public static void report() {
-        population[0].cellularAutomaton.reset(CellularAutomaton.getUniformRandomState());
-        population[0].cellularAutomaton.run(300, true);
-
-        System.out.println(population[0].fitness);
-        System.out.println("Gen: " + genNum);
+        CellularAutomatonIndividual fittest = population[0];
         System.out.println("");
+        System.out.println("----------------- Gen " + genNum + " -----------------------");
+        System.out.println("");
+        final int numRuns = 3;
+        for (int i = 0; i < numRuns; i++) {
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("Gen: " + genNum);
+            System.out.println("Fittest Fitness: " + fittest.fitness);
+            System.out.println("Example " + (i + 1) + " of " + numRuns + " Uniform Runs");
+            fittest.cellularAutomaton.reset(CellularAutomaton.getUniformRandomState());
+            fittest.cellularAutomaton.run(300, true);
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+        }
+
+        for (int i = 0; i < numRuns; i++) {
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+            System.out.println("Gen: " + genNum);
+            System.out.println("Fittest Fitness: " + fittest.fitness);
+            System.out.println("Example " + (i + 1) + " of " + numRuns + " Unbiased Runs");
+            fittest.cellularAutomaton.reset(CellularAutomaton.getUnbiasedRandomState());
+            fittest.cellularAutomaton.run(300, true);
+            System.out.println("");
+            System.out.println("");
+            System.out.println("");
+        }
     }
 
 

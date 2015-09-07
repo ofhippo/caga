@@ -11,7 +11,6 @@ import java.util.Random;
 public class CellularAutomaton {
     public static final int RULE = 102;
     public static final int WORLD_SIZE = 149;
-    public static final int DURATION = 1000;
     public static final boolean RANDOM_INITIAL_CONDITION = false;
     private static final boolean DEBUG = false;
 
@@ -26,7 +25,7 @@ public class CellularAutomaton {
         boolean[] initialState = RANDOM_INITIAL_CONDITION ? getUnbiasedRandomState() : getOneBlackCellInitialState();
         CellularAutomaton ca = new CellularAutomaton(getElementaryRuleFromWolframNumber(RULE));
         ca.reset(initialState);
-        ca.run(DURATION);
+        ca.run(1000);
     }
 
     public static boolean[] getOneBlackCellInitialState() {
